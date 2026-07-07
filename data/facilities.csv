@@ -1,0 +1,51 @@
+facility_id,facility_name,facility_type,health_zone,city,capacity
+F001,Calgary Facility 1,Childcare centre,Calgary Zone,Calgary,52
+F002,Central Facility 2,Childcare centre,Central Zone,Red Deer,165
+F003,Edmonton Facility 3,Acute care,Edmonton Zone,Edmonton,92
+F004,South Facility 4,Childcare centre,South Zone,Lethbridge,84
+F005,North Facility 5,Community clinic,North Zone,Grande Prairie,56
+F006,Calgary Facility 6,Long-term care,Calgary Zone,Calgary,151
+F007,South Facility 7,Acute care,South Zone,Lethbridge,348
+F008,South Facility 8,Long-term care,South Zone,Lethbridge,141
+F009,South Facility 9,Childcare centre,South Zone,Lethbridge,254
+F010,North Facility 10,Acute care,North Zone,Grande Prairie,341
+F011,Calgary Facility 11,School,Calgary Zone,Calgary,121
+F012,North Facility 12,Childcare centre,North Zone,Grande Prairie,214
+F013,Edmonton Facility 13,School,Edmonton Zone,Edmonton,150
+F014,Calgary Facility 14,School,Calgary Zone,Calgary,87
+F015,Calgary Facility 15,Shelter,Calgary Zone,Calgary,223
+F016,South Facility 16,School,South Zone,Lethbridge,175
+F017,North Facility 17,Long-term care,North Zone,Grande Prairie,314
+F018,North Facility 18,Long-term care,North Zone,Grande Prairie,80
+F019,Central Facility 19,Community clinic,Central Zone,Red Deer,225
+F020,Edmonton Facility 20,Community clinic,Edmonton Zone,Edmonton,75
+F021,Edmonton Facility 21,Long-term care,Edmonton Zone,Edmonton,188
+F022,Edmonton Facility 22,Long-term care,Edmonton Zone,Edmonton,91
+F023,Central Facility 23,Shelter,Central Zone,Red Deer,272
+F024,Central Facility 24,Childcare centre,Central Zone,Red Deer,123
+F025,Central Facility 25,School,Central Zone,Red Deer,147
+F026,Central Facility 26,Childcare centre,Central Zone,Red Deer,76
+F027,Edmonton Facility 27,Community clinic,Edmonton Zone,Edmonton,313
+F028,Edmonton Facility 28,Childcare centre,Edmonton Zone,Edmonton,123
+F029,North Facility 29,Shelter,North Zone,Grande Prairie,178
+F030,South Facility 30,Childcare centre,South Zone,Lethbridge,152
+F031,Central Facility 31,Childcare centre,Central Zone,Red Deer,68
+F032,Calgary Facility 32,Acute care,Calgary Zone,Calgary,201
+F033,Central Facility 33,Shelter,Central Zone,Red Deer,73
+F034,South Facility 34,Acute care,South Zone,Lethbridge,201
+F035,North Facility 35,Acute care,North Zone,Grande Prairie,242
+F036,North Facility 36,Childcare centre,North Zone,Grande Prairie,113
+F037,Edmonton Facility 37,School,Edmonton Zone,Edmonton,166
+F038,South Facility 38,Childcare centre,South Zone,Lethbridge,315
+F039,South Facility 39,School,South Zone,Lethbridge,259
+F040,North Facility 40,Community clinic,North Zone,Grande Prairie,225
+F041,Edmonton Facility 41,Acute care,Edmonton Zone,Edmonton,300
+F042,Calgary Facility 42,Shelter,Calgary Zone,Calgary,64
+F043,Edmonton Facility 43,Long-term care,Edmonton Zone,Edmonton,121
+F044,North Facility 44,Childcare centre,North Zone,Grande Prairie,345
+F045,North Facility 45,Long-term care,North Zone,Grande Prairie,235
+F046,North Facility 46,Community clinic,North Zone,Grande Prairie,310
+F047,South Facility 47,School,South Zone,Lethbridge,45
+F048,Calgary Facility 48,Childcare centre,Calgary Zone,Calgary,314
+F049,Central Facility 49,School,Central Zone,Red Deer,97
+F050,North Facility 50,School,North Zone,Grande Prairie,120
