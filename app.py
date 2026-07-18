@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 st.title("Public Health AI Data Assistant")
-st.caption("Phase 3 preview: predefined questions plus safe free-text question capture")
+st.caption("Phase 5A preview: predefined questions plus expanded safe rule-based free-text SQL generation")
 
 st.markdown(
     """
@@ -151,53 +151,162 @@ def is_safe_select_query(sql_query):
 
 def generate_rule_based_sql(user_question):
     """
-    Rule-based SQL generator for a small set of supported free-text questions.
+    Rule-based SQL generator for a selected set of supported free-text questions.
     This is not a real AI model yet.
     """
 
     question = user_question.strip().lower()
 
+    # 1. Facility type with highest total cases
     if "facility type" in question and "highest" in question and "cases" in question:
         return """
-            SELECT
-                f.facility_type,
-                SUM(o.number_of_cases) AS total_cases,
-                COUNT(*) AS number_of_outbreaks,
-                ROUND(AVG(o.number_of_cases), 1) AS average_cases_per_outbreak
-            FROM 'data/outbreak_events.csv' o
-            JOIN 'data/facilities.csv' f
-                ON o.facility_id = f.facility_id
-            GROUP BY f.facility_type
-            ORDER BY total_cases DESC
-            LIMIT 1;
+        SELECT
+            f.facility_type,
+            SUM(o.number_of_cases) AS total_cases,
+            COUNT(*) AS number_of_outbreaks,
+            ROUND(AVG(o.number_of_cases), 1) AS average_cases_per_outbreak
+        FROM 'data/outbreak_events.csv' o
+        JOIN 'data/facilities.csv' f
+            ON o.facility_id = f.facility_id
+        GROUP BY f.facility_type
+        ORDER BY total_cases DESC
+        LIMIT 1;
         """
 
+    # 2. Disease with most outbreaks
     elif "disease" in question and "most outbreaks" in question:
         return """
-            SELECT
-                disease,
-                COUNT(*) AS number_of_outbreaks
-            FROM 'data/outbreak_events.csv'
-            GROUP BY disease
-            ORDER BY number_of_outbreaks DESC
-            LIMIT 1;
+        SELECT
+            disease,
+            COUNT(*) AS number_of_outbreaks
+        FROM 'data/outbreak_events.csv'
+        GROUP BY disease
+        ORDER BY number_of_outbreaks DESC
+        LIMIT 1;
         """
 
+    # 3. Health zone with highest average RSV percent positivity
     elif "rsv" in question and "health zone" in question and "positivity" in question:
         return """
-            SELECT
-                health_zone,
-                ROUND(AVG(percent_positive), 1) AS average_rsv_percent_positive,
-                SUM(test_volume) AS total_rsv_test_volume
-            FROM 'data/weekly_respiratory_activity.csv'
-            WHERE virus = 'RSV'
-            GROUP BY health_zone
-            ORDER BY average_rsv_percent_positive DESC
-            LIMIT 1;
+        SELECT
+            health_zone,
+            ROUND(AVG(percent_positive), 1) AS average_rsv_percent_positive,
+            SUM(test_volume) AS total_rsv_test_volume
+        FROM 'data/weekly_respiratory_activity.csv'
+        WHERE virus = 'RSV'
+        GROUP BY health_zone
+        ORDER BY average_rsv_percent_positive DESC
+        LIMIT 1;
+        """
+
+    # 4. Health zone with highest RSV test volume
+    elif "rsv" in question and "test volume" in question and "health zone" in question:
+        return """
+        SELECT
+            health_zone,
+            SUM(test_volume) AS total_rsv_test_volume
+        FROM 'data/weekly_respiratory_activity.csv'
+        WHERE virus = 'RSV'
+        GROUP BY health_zone
+        ORDER BY total_rsv_test_volume DESC
+        LIMIT 1;
+        """
+
+    # 5. Health zone with highest estimated RSV positive tests
+    elif "rsv" in question and ("estimated positive" in question or "positive tests" in question) and "health zone" in question:
+        return """
+        SELECT
+            health_zone,
+            ROUND(SUM(test_volume * percent_positive / 100), 0) AS estimated_rsv_positive_tests,
+            SUM(test_volume) AS total_rsv_test_volume,
+            ROUND(AVG(percent_positive), 1) AS average_rsv_percent_positive
+        FROM 'data/weekly_respiratory_activity.csv'
+        WHERE virus = 'RSV'
+        GROUP BY health_zone
+        ORDER BY estimated_rsv_positive_tests DESC
+        LIMIT 1;
+        """
+
+    # 6. Facility with most outbreaks
+    elif "facility" in question and "most outbreaks" in question and "type" not in question:
+        return """
+        SELECT
+            f.facility_name,
+            f.facility_type,
+            f.health_zone,
+            COUNT(*) AS number_of_outbreaks,
+            SUM(o.number_of_cases) AS total_cases
+        FROM 'data/outbreak_events.csv' o
+        JOIN 'data/facilities.csv' f
+            ON o.facility_id = f.facility_id
+        GROUP BY
+            f.facility_name,
+            f.facility_type,
+            f.health_zone
+        ORDER BY number_of_outbreaks DESC, total_cases DESC
+        LIMIT 1;
+        """
+
+    # 7. Disease with highest total number of cases
+    elif "disease" in question and "highest" in question and "cases" in question:
+        return """
+        SELECT
+            disease,
+            SUM(number_of_cases) AS total_cases,
+            COUNT(*) AS number_of_outbreaks
+        FROM 'data/outbreak_events.csv'
+        GROUP BY disease
+        ORDER BY total_cases DESC
+        LIMIT 1;
+        """
+
+    # 8. Facility type with most deaths
+    elif "facility type" in question and ("death" in question or "deaths" in question):
+        return """
+        SELECT
+            f.facility_type,
+            SUM(o.number_deaths) AS total_deaths,
+            COUNT(*) AS number_of_outbreaks,
+            SUM(o.number_of_cases) AS total_cases
+        FROM 'data/outbreak_events.csv' o
+        JOIN 'data/facilities.csv' f
+            ON o.facility_id = f.facility_id
+        GROUP BY f.facility_type
+        ORDER BY total_deaths DESC, total_cases DESC
+        LIMIT 1;
+        """
+
+    # 9. Health zone with most outbreak-associated cases
+    elif "health zone" in question and ("most cases" in question or "highest cases" in question or "outbreak-associated cases" in question):
+        return """
+        SELECT
+            f.health_zone,
+            SUM(o.number_of_cases) AS total_cases,
+            COUNT(*) AS number_of_outbreaks
+        FROM 'data/outbreak_events.csv' o
+        JOIN 'data/facilities.csv' f
+            ON o.facility_id = f.facility_id
+        GROUP BY f.health_zone
+        ORDER BY total_cases DESC
+        LIMIT 1;
+        """
+
+    # 10. Monthly outbreak trend by disease
+    elif ("change over time" in question or "monthly" in question or "trend" in question) and "disease" in question:
+        return """
+        SELECT
+            DATE_TRUNC('month', CAST(outbreak_start_date AS DATE)) AS outbreak_month,
+            disease,
+            COUNT(*) AS number_of_outbreaks,
+            SUM(number_of_cases) AS total_cases
+        FROM 'data/outbreak_events.csv'
+        GROUP BY outbreak_month, disease
+        ORDER BY outbreak_month, disease;
         """
 
     else:
         return None
+
 
 # ----------------------------------------------------
 # Predefined questions and SQL queries
@@ -451,10 +560,10 @@ if st.button("Run predefined query"):
 
 st.divider()
 
-st.header("2. Try your own question — Phase 3 rule-based preview")
+st.header("2. Try your own question — Phase 5A expanded rule-based preview")
 
 st.warning(
-    "This section is a controlled Phase 3 prototype. "
+    "This section is a controlled Phase 5A prototype. "
     "It can answer a small set of supported free-text questions using rule-based SQL generation. "
     "A real AI model is not connected yet."
 )
@@ -462,7 +571,14 @@ st.warning(
 supported_questions = [
     "Which facility type had the highest total number of cases?",
     "Which disease had the most outbreaks?",
-    "Which health zone had the highest average RSV percent positivity?"
+    "Which health zone had the highest average RSV percent positivity?",
+    "Which health zone had the highest RSV test volume?",
+    "Which health zone had the highest estimated RSV positive tests?",
+    "Which facility had the most outbreaks?",
+    "Which disease had the highest total number of cases?",
+    "Which facility type had the most deaths?",
+    "Which health zone had the most outbreak-associated cases?",
+    "How did outbreak activity change over time by disease?"
 ]
 
 with st.expander("View supported free-text questions"):
@@ -515,11 +631,60 @@ if st.button("Generate and run safe SQL"):
 
                     st.subheader("Plain-language summary")
 
-                    if "facility_type" in result.columns and "total_cases" in result.columns:
+                    if "total_deaths" in result.columns:
+                        top_row = result.iloc[0]
+                        st.write(
+                            f"The facility type with the highest number of outbreak-associated deaths is "
+                            f"**{top_row['facility_type']}**, with **{int(top_row['total_deaths'])} deaths**, "
+                            f"**{int(top_row['number_of_outbreaks'])} outbreaks**, and **{int(top_row['total_cases'])} total cases**."
+                        )
+
+                    elif "estimated_rsv_positive_tests" in result.columns:
+                        top_row = result.iloc[0]
+                        st.write(
+                            f"The health zone with the highest estimated RSV positive tests is "
+                            f"**{top_row['health_zone']}**, with approximately "
+                            f"**{top_row['estimated_rsv_positive_tests']} estimated RSV positive tests**."
+                        )
+
+                    elif "average_rsv_percent_positive" in result.columns:
+                        top_row = result.iloc[0]
+                        st.write(
+                            f"The health zone with the highest average RSV percent positivity is "
+                            f"**{top_row['health_zone']}**, with an average RSV percent positivity of "
+                            f"**{top_row['average_rsv_percent_positive']}%**."
+                        )
+
+                    elif "total_rsv_test_volume" in result.columns:
+                        top_row = result.iloc[0]
+                        st.write(
+                            f"The health zone with the highest RSV test volume is "
+                            f"**{top_row['health_zone']}**, with **{top_row['total_rsv_test_volume']} RSV tests**."
+                        )
+
+                    elif "facility_name" in result.columns and "number_of_outbreaks" in result.columns:
+                        top_row = result.iloc[0]
+                        st.write(
+                            f"The facility with the highest number of outbreaks is "
+                            f"**{top_row['facility_name']}** "
+                            f"({top_row['facility_type']}, {top_row['health_zone']}), "
+                            f"with **{top_row['number_of_outbreaks']} outbreaks** and "
+                            f"**{top_row['total_cases']} total cases**."
+                        )
+
+                    elif "facility_type" in result.columns and "total_cases" in result.columns:
                         top_row = result.iloc[0]
                         st.write(
                             f"The facility type with the highest total number of cases is "
                             f"**{top_row['facility_type']}**, with **{top_row['total_cases']} total cases** "
+                            f"across **{top_row['number_of_outbreaks']} outbreaks**."
+                        )
+
+                    elif "disease" in result.columns and "total_cases" in result.columns:
+                        top_row = result.iloc[0]
+                        st.write(
+                            f"The disease with the highest total number of outbreak-associated cases is "
+                            f"**{top_row['disease']}**, with **{top_row['total_cases']} total cases** "
                             f"across **{top_row['number_of_outbreaks']} outbreaks**."
                         )
 
@@ -530,12 +695,18 @@ if st.button("Generate and run safe SQL"):
                             f"**{top_row['disease']}**, with **{top_row['number_of_outbreaks']} outbreaks**."
                         )
 
-                    elif "health_zone" in result.columns and "average_rsv_percent_positive" in result.columns:
+                    elif "health_zone" in result.columns and "total_cases" in result.columns:
                         top_row = result.iloc[0]
                         st.write(
-                            f"The health zone with the highest average RSV percent positivity is "
-                            f"**{top_row['health_zone']}**, with an average RSV positivity of "
-                            f"**{top_row['average_rsv_percent_positive']}%**."
+                            f"The health zone with the highest number of outbreak-associated cases is "
+                            f"**{top_row['health_zone']}**, with **{top_row['total_cases']} cases** "
+                            f"across **{top_row['number_of_outbreaks']} outbreaks**."
+                        )
+
+                    elif "outbreak_month" in result.columns and "disease" in result.columns:
+                        st.write(
+                            "The query returned a monthly outbreak trend by disease. "
+                            "Review the result table to see how outbreak counts and cases changed over time."
                         )
 
                     else:
