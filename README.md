@@ -11,7 +11,7 @@ Phase 5A completed prototype with expanded rule-based free-text question support
 
 ## What the App Does
 
-The app allows users to:
+The app allows users to: 
 
 - Select predefined public health questions
 - Ask selected free-text public health questions
