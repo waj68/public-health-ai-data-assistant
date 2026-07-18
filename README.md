@@ -7,7 +7,7 @@ This version uses semi-synthetic public health data and a safe rule-based free-t
 
 ## Current Version
 
-Phase 3 completed prototype with Phase 4 deployment preparation.
+Phase 5A completed prototype with expanded rule-based free-text question support and Streamlit deployment.
 
 ## What the App Does
 
