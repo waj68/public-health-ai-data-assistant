@@ -100,12 +100,6 @@ Safety rules:
 - Do not expose real patient or confidential information.
 """
 
-con = duckdb.connect()
-
-SCHEMA_CONTEXT = """
-...
-"""
-
 # ----------------------------------------------------
 # SQL safety checker
 # ----------------------------------------------------
